@@ -1,5 +1,5 @@
 const userModel = require('../model/userModel')
-const JWT = require('jsonwebtoken')
+const jwt = require('jsonwebtoken')
 const bcrypt = require("bcrypt")
 const saltRounds = 10
 const uploadFile = require('../aws/config')
@@ -107,3 +107,30 @@ exports. createUser = async (req, res) => {
         return res.status(500).send({ status: false, error: error.message })
     }
 }
+const userLogin=async function(req,res){
+
+    let data=req.body
+    let {email,password}=req.body
+
+    if(!isValidRequestBody(data)) 
+    returnres.status(400).send({status:false,message:"Please provide data to create a user."})
+
+    if(!email || !password)
+    returnres.status(400).send({status:false,message:"email and password is required to login."})
+
+    let user=await userModel.findOne({email:email})
+    if(!user) return res.status(401).send({status:false,message:"Login failed!..pleaseprovide valid email."})
+
+    let hashedPassword = user.password
+     const encryptedPassword = await bcrypt.compare(password, hashedPassword)
+     console.log(encryptedPassword)
+    if(!encryptedPassword) res.status(401).send({status:false,message:"Login failed!.password is incorrect."})
+
+
+// creating JWT token using userId
+let userId=user._id
+let token= jwt.sign({userId:userId},"secretKey",{expiresIn: '10h'},{iat: Math.floor(Date.now() / 1000)})
+return res.status(200).send({status:true,message:"User login successfull",data:{userId,token}})
+
+}
+module.exports.userLogin=userLogin
