@@ -23,10 +23,9 @@ exports. createUser = async (req, res) => {
         if (isValidRequestBody(rest)) { return res.status(400).send({ status: false, message: "You can input only fname, lname, email, profileImage, phone, password & address." }) }
         
         
-        console.log(typeof(address))
         if (!address) return res.status(400).send({ status: false, message: "Please give the User Address." })
         
-                if (!isValid(data.address)) return res.status(400).send({ status: false, message: "Address should be in object and must contain shipping and billing addresses" });
+        if (!isValid(data.address)) return res.status(400).send({ status: false, message: "Address should be in object and must contain shipping and billing addresses" });
         
         //===================== Destructuring Address from Object Data =================================//
         
