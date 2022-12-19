@@ -1,0 +1,22 @@
+{
+  "name": "project-5",
+  "version": "1.0.0",
+  "description": "Project - Products Management\r Key points\r In this project we will work feature wise. That means we pick one object like user, book, blog, etc at a time. We work through it's feature. The steps would be:\r We create it's model.\r We build it's APIs.\r We test these APIs.\r We deploy these APIs.\r We integrate these APIs with frontend.\r We will repeat steps from Step 1 to Step 5 for each feature in this project.\r This project is divided into 4 features namely User, Product, Cart and Order. You need to work on a single feature at a time. Once that is completed as per above mentioned steps. You will be instructed to move to next Feature.\r In this project we are changing how we send token with a request. Instead of using a custom header key like x-api-key, you need to use Authorization header and send the JWT token as Bearer token.\r Create a group database groupXDatabase. You can clean the db you previously used and resue that.\r This time each group should have a single git branch. Coordinate amongst yourselves by ensuring every next person pulls the code last pushed by a team mate. You branch will be checked as part of the demo. Branch name should follow the naming convention project/productsManagementGroupX\r Follow the naming conventions exactly as instructed.\r FEATURE I - User\r Models\r User Model\r { \r   fname: {string, mandatory},\r   lname: {string, mandatory},\r   email: {string, mandatory, valid email, unique},\r   profileImage: {string, mandatory}, // s3 link\r   phone: {string, mandatory, unique, valid Indian mobile number}, \r   password: {string, mandatory, minLen 8, maxLen 15}, // encrypted password\r   address: {\r     shipping: {\r       street: {string, mandatory},\r       city: {string, mandatory},\r       pincode: {number, mandatory}\r     },\r     billing: {\r       street: {string, mandatory},\r       city: {string, mandatory},\r       pincode: {number, mandatory}\r     }\r   },\r   createdAt: {timestamp},\r   updatedAt: {timestamp}\r }\r User APIs\r POST /register\r Create a user document from request body. Request body must contain image.\r Upload image to S3 bucket and save it's public url in user document.\r Save password in encrypted format. (use bcrypt)\r Response format\r On success - Return HTTP status 201. Also return the user document. The response should be a JSON object like this\r On error - Return a suitable error message with a valid HTTP status code. The response should be a JSON object like this\r {\r     \"status\": true,\r     \"message\": \"User created successfully\",\r     \"data\": {\r         \"fname\": \"John\",\r         \"lname\": \"Doe\",\r         \"email\": \"johndoe@mailinator.com\",\r         \"profileImage\": \"https://classroom-training-bucket.s3.ap-south-1.amazonaws.com/user/copernico-p_kICQCOM4s-unsplash.jpg\",\r         \"phone\": 9876543210,\r         \"password\": \"$2b$10$DpOSGb0B7cT0f6L95RnpWO2P/AtEoE6OF9diIiAEP7QrTMaV29Kmm\",\r         \"address\": {\r             \"shipping\": {\r                 \"street\": \"MG Road\",\r                 \"city\": \"Indore\",\r                 \"pincode\": 452001\r             },\r             \"billing\": {\r                 \"street\": \"MG Road\",\r                 \"city\": \"Indore\",\r                 \"pincode\": 452001\r             }\r         },\r         \"_id\": \"6162876abdcb70afeeaf9cf5\",\r         \"createdAt\": \"2021-10-10T06:25:46.051Z\",\r         \"updatedAt\": \"2021-10-10T06:25:46.051Z\",\r         \"__v\": 0\r     }\r }\r POST /login\r Allow an user to login with their email and password.\r On a successful login attempt return the userId and a JWT token contatining the userId, exp, iat.\r NOTE: There is a slight change in response body. You should also return userId in addition to the JWT token.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bibiasha/project-5.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bibiasha/project-5/issues"
+  },
+  "homepage": "https://github.com/bibiasha/project-5#readme",
+  "dependencies": {
+    "mongoose": "^6.8.0"
+  }
+}
