@@ -9,7 +9,7 @@ const {isValidImage,isValidCity,isValidPin,isValid,isValidMobile,isValidEmail,is
 
 
 //<<<===================== This function is used for Create User =====================>>>//
-exports. createUser = async (req, res) => {
+exports.createUser = async (req, res) => {
 
     try {
 
@@ -107,7 +107,9 @@ exports. createUser = async (req, res) => {
         return res.status(500).send({ status: false, error: error.message })
     }
 }
-const userLogin=async function(req,res){
+
+
+exports.userLogin=async function(req,res){
 
     let data=req.body
     let {email,password}=req.body
@@ -133,6 +135,7 @@ let token= jwt.sign({userId:userId},"secretKey",{expiresIn: '10h'},{iat: Math.fl
 return res.status(200).send({status:true,message:"User login successfull",data:{userId,token}})
 
 }
+
 
 exports. getUserProfile= async function(req, res){
     try{
@@ -168,4 +171,5 @@ exports. getUserProfile= async function(req, res){
 
 
 
-module.exports.userLogin=userLogin
+
+
