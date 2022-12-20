@@ -17,6 +17,7 @@ router.put("/user/:userId/profile", authentication,authorization, updateUser)
 router.put('/user/:userId/profile',authentication,updateUser)
 // ======================Product APIs======================== 
 
+router.post("/products", createProducts)
 router.get('/products/:productId',getProductById)
 
 
