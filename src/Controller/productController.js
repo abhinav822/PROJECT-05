@@ -13,7 +13,7 @@ exports.createProducts = async (req, res) => {
         let { title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes } = data
 
         //===================== Checking User Body Data =====================//
-        if (!isValidRequestBody(data)) return res.status(400).send({ status: false, message: "No data found from body! You need to put the Mandatory Fields (i.e. fname, lname, email, profileImage, phone, password & address). " });
+        if (!isValidRequestBody(data)) return res.status(400).send({ status: false, message: "title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes"  });
 
         //===================== Validation of Data =====================//
 
