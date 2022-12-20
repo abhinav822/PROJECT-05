@@ -171,7 +171,7 @@ exports.updateUser = async function (req, res) {
     try {
         let userId = req.params.userId
 
-        if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: "Invalid userId" })
+        if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "Invalid userId" })
 
 
         let userDb = await userModel.findById(userId)
@@ -186,7 +186,7 @@ exports.updateUser = async function (req, res) {
 
         let data = {} //storing object
 
-        if (!isValid(fname)) return res.status(400).send({ status: false, message: "fname not be empty" });
+        // if (!isValid(fname)) return res.status(400).send({ status: false, message: "fname not be empty" });
         if (fname) {
             if (!isValidName.test(fname)) return res.status(406).send({ status: false, message: "Enter a valid fname" })
             data.fname = fname
