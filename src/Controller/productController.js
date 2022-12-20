@@ -1,9 +1,6 @@
 const productModel=require('../model/productModel')
-const {isValidObjectId}=require('../validations/validator')
 const uploadFile = require("../aws/config")
-
-
-const { isValidImage, validSizes, isValidNum, isValid, isValidMobile, isValidEmail, isValidName, isValidObjectId, isValidPassword, isvalidPincode, isValidRequestBody } = require('../validations/validator')
+const { isValidImage, validSizes, isValidNum, isValid,  isValidName, isValidObjectId,  isValidRequestBody } = require('../validations/validator')
 
 exports.createProducts = async (req, res) => {
     try {

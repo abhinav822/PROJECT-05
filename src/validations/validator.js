@@ -46,4 +46,17 @@ const isValidPin = (value) => { return (/^[1-9][0-9]{5}$/).test(value) }
 
 const isValidImage = (value) => { return (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/).test(value)}
 
-module.exports={isValidImage,isValidCity,isValidPin,isValid,isValidMobile,isValidEmail,isValidName,isValidObjectId,isValidPassword,isvalidPincode,isValidRequestBody}
+const isValidNum = (value) => { return /^[0-9]*[1-9]+$|^[1-9]+[0-9]*$/.test(value);}
+
+const validSizes = function (value) {
+  if (typeof value !== "string") { return false }
+  else {
+      let sizes = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+      for (let i = 0; i < sizes.length; i++) {
+          if (sizes[i] == value.trim()) { return true }
+      }
+      return false
+    }
+}
+
+module.exports={isValidImage,validSizes, isValidNum, isValidCity,isValidPin,isValid,isValidMobile,isValidEmail,isValidName,isValidObjectId,isValidPassword,isvalidPincode,isValidRequestBody}

@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 // const { Authentication, Authorization } = require('../MiddleWare/auth')
-const { createUser, userLogin, getUserProfile, updateUser} = require('../Controller/userController')
 const {authentication, authorization}=require("../middleware/middleware")
 const { createUser, userLogin, getUserProfile,updateUser} = require('../Controller/userController')
-const {getProductById}=require('../Controller/productController')
-const {authentication}=require("../middleware/middleware")
+const {createProducts, getProductById}=require('../Controller/productController')
+
 
 
 //===================== User Registration (Post API) =====================//
