@@ -116,7 +116,7 @@ const userLogin=async function(req,res){
     returnres.status(400).send({status:false,message:"Please provide data to create a user."})
 
     if(!email || !password)
-    returnres.status(400).send({status:false,message:"email and password is required to login."})
+    return res.status(400).send({status:false,message:"email and password is required to login."})
 
     let user=await userModel.findOne({email:email})
     if(!user) return res.status(401).send({status:false,message:"Login failed!..pleaseprovide valid email."})
@@ -133,4 +133,39 @@ let token= jwt.sign({userId:userId},"secretKey",{expiresIn: '10h'},{iat: Math.fl
 return res.status(200).send({status:true,message:"User login successfull",data:{userId,token}})
 
 }
+
+exports. getUserProfile= async function(req, res){
+    try{
+        let data1= req.params.userId
+
+        if(!isValidObjectId) return res.status(400).send({status:false, message:"please provide a valid userId"})
+
+        if(Object.keys(data1).length==0) return res.status(400).send({status:false, message:"please provide userId in url"})
+
+        //verify
+
+        if (req.decodedToken.userId !== data1) {
+            return res.status(403).send({
+              status: false,
+              message:
+                "Unauthorised Access: You cannot access profile of other Users.",
+            });
+          }
+
+          let findUser= await userModel.findById(data1)
+
+          if(!findUser)return res.status(404).send({status:false,message:"userId doesn't exist"})
+
+          res.status(200).send({status: true,message: "User profile details",data:findUser})
+
+    }catch(error){
+        return res.status(500).send({ status: false, message: error.message });
+    }
+}
+
+
+
+
+
+
 module.exports.userLogin=userLogin
