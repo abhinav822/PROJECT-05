@@ -1,23 +1,28 @@
 const express = require('express');
 const router = express.Router();
-// const { Authentication, Authorization } = require('../MiddleWare/auth')
 const {authentication, authorization}=require("../middleware/middleware")
 const { createUser, userLogin, getUserProfile,updateUser} = require('../Controller/userController')
-const {createProducts, getProductById}=require('../Controller/productController')
+const {createProducts, getProductById , getProduct}=require('../Controller/productController')
 
 
-
-//===================== User Registration (Post API) =====================//
+//===================== User API =====================//
 router.post("/register", createUser)
 
 router.post("/login",userLogin)
+
 router.get("/user/:userId/profile", authentication, getUserProfile)
+
 router.put("/user/:userId/profile", authentication,authorization, updateUser)
-router.put('/user/:userId/profile',authentication,updateUser)
-// ======================Product APIs======================== 
+
+// ====================== Product APIs ======================== 
 
 router.post("/products", createProducts)
+
 router.get('/products/:productId',getProductById)
+
+router.get('/products',getProduct)
+
+
 
 
 router.all("/**",  (req, res) => {

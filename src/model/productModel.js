@@ -5,7 +5,8 @@ const productSchema = new mongoose.Schema({
     title: {
         type: String, 
         required: true,
-        unique: true
+        unique: true,
+        trim:true
         },
 
     description: {
@@ -48,7 +49,7 @@ const productSchema = new mongoose.Schema({
 
     installments: {type: Number},
 
-    deletedAt: {type: Date},
+    deletedAt: {type: Date, default:null},
 
     isDeleted: {type: Boolean, default: false}
 

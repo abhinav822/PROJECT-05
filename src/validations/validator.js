@@ -14,11 +14,7 @@ const isValidRequestBody = function(requestBody) {
     return Object.keys(requestBody).length > 0; // it checks, is there any key is available or not in request body
 }
 
-const isValidEmail = function (value) {
-    let emailRegex =
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-z\-0-9]+\.)+[a-z]{2,}))$/;
-    if (emailRegex.test(value)) return true;
-  }
+
 
   const isValidMobile = function (mobile) {
     if (/^[0]?[789]\d{9}$/.test(mobile)){
@@ -26,19 +22,20 @@ const isValidEmail = function (value) {
     }
 }
 
-const isvalidPincode= function (value) {
-    return (/^(?=.[0-9])[a-zA-Z0-9!@#$%^&]{1,6}$/.test(value))
-  }
-
-  const isValidPassword = function (password) {
-    return (/^(?=.[0-9])(?=.[!@#$%^&])[a-zA-Z0-9!@#$%^&]{8,15}$/.test(password))
-}
 
 const isValidName = function (name) {
-    if (/^[a-zA-Z ]+$/.test(name)) {
-      return true;
-    }
-  };
+  if (/^[a-zA-Z ]+$/.test(name)) {
+    return true;
+  }
+};
+
+const isValidEmail = function (email) {
+  const emailRegex =
+    /^[a-z0-9][a-z0-9-_\.]+@([a-z]|[a-z0-9]?[a-z0-9-]+[a-z0-9])\.[a-z0-9]{2,10}(?:\.[a-z]{2,10})?$/;
+  return emailRegex.test(email);
+};
+
+const isValidPassword = (value) => { return (/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/.test(value)); }
 
 const isValidCity = (value) => { return (/^[A-za-z]+$/).test(value) }
 
@@ -46,17 +43,16 @@ const isValidPin = (value) => { return (/^[1-9][0-9]{5}$/).test(value) }
 
 const isValidImage = (value) => { return (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/).test(value)}
 
+const isValidateSize = (value) => { return ["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(value) !== -1 }
+
+const isValidPrice = (value) => { return (/^(?:0|[1-9]\d*)(?:\.(?!.*000)\d+)?$/).test(value) }
+
 const isValidNum = (value) => { return /^[0-9]*[1-9]+$|^[1-9]+[0-9]*$/.test(value);}
 
-const validSizes = function (value) {
-  if (typeof value !== "string") { return false }
-  else {
-      let sizes = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-      for (let i = 0; i < sizes.length; i++) {
-          if (sizes[i] == value.trim()) { return true }
-      }
-      return false
-    }
-}
+const isValidStreet = function (street) {
+  let streets = /^[#.0-9a-zA-Z\s,-]+$/;
+  return streets.test(street);
+};
 
-module.exports={isValidImage,validSizes, isValidNum, isValidCity,isValidPin,isValid,isValidMobile,isValidEmail,isValidName,isValidObjectId,isValidPassword,isvalidPincode,isValidRequestBody}
+
+module.exports={isValidStreet,isValidNum,isValidPrice,isValidateSize,isValidImage,isValidCity,isValidPin,isValid,isValidMobile,isValidEmail,isValidName,isValidObjectId,isValidPassword,isValidRequestBody}

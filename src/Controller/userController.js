@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require("bcrypt")
 const saltRounds = 10
 const uploadFile = require('../aws/config')
-const { isValidImage, isValidCity, isValidPin, isValid, isValidMobile, isValidEmail, isValidName, isValidObjectId, isValidPassword, isvalidPincode, isValidRequestBody } = require('../validations/validator')
+const { isValidStreet, isValidImage, isValidCity, isValidPin, isValid, isValidMobile, isValidEmail, isValidName, isValidObjectId, isValidPassword, isValidRequestBody } = require('../validations/validator')
 
 
 
@@ -45,7 +45,7 @@ exports.createUser = async (req, res) => {
         if (!isValidMobile(phone)) { return res.status(400).send({ status: false, message: 'Please enter valid Mobile Number' }) }
 
         if (!isValid(password)) { return res.status(400).send({ status: false, message: 'Please enter the password' }) }
-        if (isValidPassword(password)) { return res.status(400).send({ status: false, message: "To make strong Password Should be use 8 to 15 Characters which including letters, atleast one special character and at least one Number." }) }
+        if (!isValidPassword(password)) { return res.status(400).send({ status: false, message: "To make strong Password Should be use 8 to 15 Characters which including letters, atleast one special character and at least one Number." }) }
 
 
         //===================== Validation of Shipping Address =====================//
@@ -143,9 +143,9 @@ exports.getUserProfile = async function (req, res) {
 
         if (!isValidObjectId) return res.status(400).send({ status: false, message: "please provide a valid userId" })
 
+
         if (Object.keys(data1).length == 0) return res.status(400).send({ status: false, message: "please provide userId in url" })
 
-        //verify
 
         if (req.decodedToken.userId !== data1) {
             return res.status(403).send({
@@ -167,23 +167,27 @@ exports.getUserProfile = async function (req, res) {
 }
 
 
+
 exports.updateUser = async function (req, res) {
     try {
         let userId = req.params.userId
 
         if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "Invalid userId" })
 
-
+        
+        
         let userDb = await userModel.findById(userId)
-
+        
         if (!userDb) return res.status(404).send({ status: false, messgage: 'user not found' })
-
+        
         let files = req.files
         const body = req.body
-
+        
         let { fname, lname, email, phone, password, address } = body
+        
+        let data = {} 
 
-        let data = {} //storing object
+        if (!isValidRequestBody(body))return res.status(400).send({ status: false, message: "please give some data" });
 
         if (fname) {
             if (!isValidName(fname)) return res.status(406).send({ status: false, message: "Enter a valid fname" })
@@ -211,9 +215,9 @@ exports.updateUser = async function (req, res) {
 
         
         if (phone) {
-            if (!isValidMobile(phone)) return res.status(400).send({ status: false, message: "email must be in correct format for e.g. xyz@abc.com" })
-            let uniquePhone = await userModel.findOne({ email: email })
-            if (uniquePhone) return res.status(400).send({ status: false, message: "email Id Already Exists." })
+            if (!isValidMobile(phone)) return res.status(400).send({ status: false, message: "invalid phone number" })
+            let uniquePhone = await userModel.findOne({ phone: phone })
+            if (uniquePhone) return res.status(400).send({ status: false, message: "phone number Already Exists." })
             data.phone = phone
         }
 
@@ -230,14 +234,16 @@ exports.updateUser = async function (req, res) {
         if (address) {
             let addressData = await userModel.findById(userId).select({ _id: 0, address: 1 })
             addressData = addressData.toObject()
-            //address = JSON.parse(address)
-            // console.log(addressData)
             if (address.shipping) {
                 if (address.shipping.street) {
+                    if(!isValidStreet(address.shipping.street))
+                        return res.status(400).send({status:false, message:"enter valid street"})
                 
                     addressData.address.shipping.street = address.shipping.street
                 }
                 if (address.shipping.city) {
+                    if(!isValidCity(address.shipping.city))
+                        return res.status(400).send({status:false , message:"enter valid city"})
                     
                     addressData.address.shipping.city = address.shipping.city
                 }
@@ -252,20 +258,26 @@ exports.updateUser = async function (req, res) {
             if (address.billing) {
 
                 if (address.billing.street) {
-                    
+                    if(!isValidStreet(address.billing.street))
+                        return res.status(400).send({status:false, message:"enter valid street"})
+                
                     addressData.address.billing.street = address.billing.street
                 }
-                if (address.billing.city) {
+                if ((address.billing.city)) {
+                    if(!isValidCity(address.billing.city))
+                        return res.status(400).send({status:false , message:"enter valid city"})
+
                     
                     addressData.address.billing.city = address.billing.city
                 }
 
                 if (address.billing.pincode) {
-                   
+                    if (!isValidPin(address.billing.pincode))
+                        return res.status(400).send({ status: false, message: "PIN code should contain 6 digits only " })
                     addressData.address.billing.pincode = address.billing.pincode
                 }
             }
-            address = addressData.address
+            data.address = addressData.address
         }
 
         const user = await userModel.findByIdAndUpdate(userId , data, { new: true })
@@ -280,6 +292,11 @@ exports.updateUser = async function (req, res) {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
+
+
+
+
+
 
 
 
