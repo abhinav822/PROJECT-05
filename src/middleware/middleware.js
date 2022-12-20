@@ -30,3 +30,30 @@ exports. authentication = async (req, res, next) => {
     return res.status(500).send({ status: false, message: error.message });
   }
 };
+
+exports.authorization = async (req, res, next) => {
+
+  try {
+
+      //===================== Authorising with userId From Param =====================//
+      let userId = req.params.userId
+
+      //===================== Checking the userId is Valid or Not by Mongoose =====================//
+      if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: `This UserId: ${userId} is not valid!` })
+
+      //===================== Fetching All User Data from DB =====================//
+      let userData = await userModel.findById(userId)
+      if (!userData) return res.status(404).send({ status: false, message: "User Does Not Exist" })
+
+      //x===================== Checking the userId is Authorized Person or Not =====================x//
+      if (userData['_id'].toString() !== req.decodedToken.userId) {
+          return res.status(403).send({ status: false, message: "Unauthorized User Access!" })  // getting error payload is not defined to fix this error we need to add this line in auth.js file in middleware folder 
+      }
+
+      next()
+
+  } catch (error) {
+
+      res.status(500).send({ status: false, error: error.message })
+  }
+}

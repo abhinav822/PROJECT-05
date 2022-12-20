@@ -1,9 +1,7 @@
-# project-5
+#Lithium
 
-# Project - Products Management
-
+Project - Products Management
 Key points
-
 In this project we will work feature wise. That means we pick one object like user, book, blog, etc at a time. We work through it's feature. The steps would be:
 We create it's model.
 We build it's APIs.
@@ -16,13 +14,9 @@ In this project we are changing how we send token with a request. Instead of usi
 Create a group database groupXDatabase. You can clean the db you previously used and resue that.
 This time each group should have a single git branch. Coordinate amongst yourselves by ensuring every next person pulls the code last pushed by a team mate. You branch will be checked as part of the demo. Branch name should follow the naming convention project/productsManagementGroupX
 Follow the naming conventions exactly as instructed.
-
 FEATURE I - User
-
 Models
-
-# User Model
-
+User Model
 { 
   fname: {string, mandatory},
   lname: {string, mandatory},
