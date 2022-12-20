@@ -173,6 +173,7 @@ exports.updateUser = async function (req, res) {
 
         if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "Invalid userId" })
 
+
         let userDb = await userModel.findById(userId)
 
         if (!userDb) return res.status(404).send({ status: false, messgage: 'user not found' })
@@ -279,8 +280,6 @@ exports.updateUser = async function (req, res) {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
-
-
 
 
 
