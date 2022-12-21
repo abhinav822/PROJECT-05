@@ -4,9 +4,9 @@ const router = express.Router();
 const {authentication, authorization} = require("../middleware/middleware")
 
 const { createUser, userLogin, getUserProfile,updateUser} = require('../Controller/userController')
-const {createProducts, getProductById , getProduct, updateProducts}=require('../Controller/productController')
 
-const {createProducts, getProductById , getProduct, deleteProduct} = require('../Controller/productController')
+
+const {createProducts, getProductById , getProduct,updateProducts, deleteProduct} = require('../Controller/productController')
 
 
 //===================== User API =====================//

@@ -1,6 +1,6 @@
 const productModel = require('../model/productModel')
 const uploadFile = require("../aws/config")
-const { isValidPrice, isValidateSize, isValidImage, isValid, isValidName, isValidObjectId, isValidRequestBody } = require('../validations/validator')
+const { isValidPrice, isValidNum,isValidateSize, isValidImage, isValid, isValidName, isValidObjectId, isValidRequestBody } = require('../validations/validator')
 
 
 
@@ -204,14 +204,14 @@ exports.updateProducts = async (req, res) => {
 
     if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Invalid productId" })
 
-    let product = await userModel.findById(productId)
+    let product = await productModel.findById(productId)
 
     if(!product) return res.status(404).send({ status: false, messgage: 'product not found' })
 
     const body = req.body
     const files = req.files
 
-    let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = body
+    let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments, isDeleted } = body
 
     data = {}
     //========================= if no keys are provided to update data========================//
@@ -220,7 +220,7 @@ exports.updateProducts = async (req, res) => {
     }
 
     if (title) {
-      if (!isValid(title)) return res.status(400).send({ status: false, message: "please enter the title" })
+      if (!isValidName(title)) return res.status(400).send({ status: false, message: "please enter the valid title" })
       let uniqueTitle = await productModel.findOne({ title: title })
       if (uniqueTitle) return res.status(400).send({ status: false, message: "this title is already present...to update please give a new title" })
       data.title = title
@@ -246,9 +246,9 @@ exports.updateProducts = async (req, res) => {
     }
 
     if (isFreeShipping) {
-      if (isFreeShipping != "true" && isFreeShipping != "false")
+      if(isFreeShipping != "true" && isFreeShipping != "false")
         return res.status(400).send({ status: false, message: "isFreeShipping Should be in boolean with small letters" })
-      data.isFreeShipping = isFreeShipping
+         data.isFreeShipping = isFreeShipping
     }
 
     if (files && files.length != 0) {
@@ -282,11 +282,16 @@ exports.updateProducts = async (req, res) => {
       if (!isValidNum(installments)) return res.status(400).send({ status: false, message: "installments should have only Number" })
       data.installments = installments
     }
-
+    
     //==============================Update-Product=========================//
 
-    let newProduct = await productModel.findByIdAndUpdate(productId, data, { new: true })
+    let newProduct = await productModel.findByIdAndUpdate({_id:productId, isDeleted:false}, data, { new: true })
+    if(!newProduct) {
+      return res.status(404).send({ status: false, message: "this product can't be update because it is not exist" });
+    }
      return res.status(200).send({ status: true, message: "product is successfully updated", data: newProduct })
+    
+     
 
   }catch(error) {
     return res.status(500).send({status: false, message: error.message})
