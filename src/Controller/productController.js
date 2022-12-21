@@ -178,17 +178,15 @@ exports.getProduct = async (req, res) => {
     //===================== Check the Both data(i.e priceGreaterThan & priceLessThan) is present or not =====================//
     if (priceGreaterThan && priceLessThan) {
       obj.price = { $gt: priceGreaterThan, $lt: priceLessThan }
-    }  // to test this in postman we have to pass both the data like priceGreaterThan=100&priceLessThan=200
+    }  
 
     //===================== Validate the Price Sort =====================//
     if (priceSort || priceSort == '') {
       if (!(priceSort == -1 || priceSort == 1)) return res.status(400).send({ status: false, message: "Please Enter '1' for Sort in Ascending Order or '-1' for Sort in Descending Order!" });
     }
 
-    //x===================== Fetching All Data from Product DB =====================x//
     let getProduct = await productModel.find(obj).sort({ price: priceSort })
 
-    //===================== Checking Data is Present or Not in DB =====================//
     if (getProduct.length == 0) return res.status(404).send({ status: false, message: "Product Not Found." })
 
     return res.status(200).send({ status: true, message: "Success", data: getProduct })
@@ -285,13 +283,33 @@ exports.updateProducts = async (req, res) => {
       data.installments = installments
     }
 
-    //=============================================================//
+    //==============================Update-Product=========================//
 
     let newProduct = await productModel.findByIdAndUpdate(productId, data, { new: true })
      return res.status(200).send({ status: true, message: "product is successfully updated", data: newProduct })
 
   }catch(error) {
     return res.status(500).send({status: false, message: error.message})
+  }
+}
+
+exports.deleteProduct = async (req, res) => {
+
+  try {
+
+      let productId = req.params.productId
+
+      if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: `Please Enter Valid ProductId: ${productId}.` })
+
+      let deletedProduct = await productModel.findOneAndUpdate({ isDeleted: false, _id: productId }, { isDeleted: true, deletedAt: Date.now() })
+
+      if (!deletedProduct) { return res.status(404).send({ status: false, message: "Product is not found or Already Deleted!" }) }
+
+      return res.status(200).send({ status: true, message: "Product Successfully Deleted." })
+
+  } catch (error) {
+
+      return res.status(500).send({ status: false, message: error.message })
   }
 }
 

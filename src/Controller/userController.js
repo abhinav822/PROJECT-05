@@ -8,7 +8,6 @@ const { isValidStreet, isValidImage, isValidCity, isValidPin, isValid, isValidMo
 
 
 
-//<<<===================== This function is used for Create User =====================>>>//
 exports.createUser = async (req, res) => {
 
     try {

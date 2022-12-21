@@ -5,7 +5,6 @@ const {isValidObjectId} = require('../validations/validator')
 exports. authentication = async (req, res, next) => {
   try {
     const token = req.header("Authorization");
-    // const token = req.header("Authorization", "Bearer ");
 
     if (!token) {
       return res.status(400).send({
@@ -38,7 +37,6 @@ exports.authorization = async (req, res, next) => {
       //===================== Authorising with userId From Param =====================//
       let userId = req.params.userId
 
-      //===================== Checking the userId is Valid or Not by Mongoose =====================//
       if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: `This UserId: ${userId} is not valid!` })
 
       //===================== Fetching All User Data from DB =====================//

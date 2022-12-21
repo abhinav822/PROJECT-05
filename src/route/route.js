@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const {authentication, authorization}=require("../middleware/middleware")
+
+const {authentication, authorization} = require("../middleware/middleware")
+
 const { createUser, userLogin, getUserProfile,updateUser} = require('../Controller/userController')
 const {createProducts, getProductById , getProduct, updateProducts}=require('../Controller/productController')
+
+const {createProducts, getProductById , getProduct, deleteProduct} = require('../Controller/productController')
 
 
 //===================== User API =====================//
@@ -23,6 +27,9 @@ router.get('/products/:productId',getProductById)
 router.get('/products',getProduct)
 
 router.put('/products/:productId', updateProducts)
+
+router.delete("/products/:productId", deleteProduct)
+
 
 
 
