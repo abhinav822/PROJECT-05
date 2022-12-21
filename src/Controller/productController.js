@@ -126,10 +126,10 @@ exports.getProduct = async (req, res) => {
 
     let data = req.query
 
-    //===================== Destructuring User Body Data =====================//
+   
     let { size, name, priceGreaterThan, priceLessThan, priceSort, ...rest } = data
 
-    //===================== Checking Mandotory Field =====================//
+
     if (isValidRequestBody(rest)) { return res.status(400).send({ status: false, message: "You can input only size, name, priceGreaterThan, priceLessThan, priceSort." }) }
 
     if (!isValidRequestBody(data)) {
@@ -141,10 +141,10 @@ exports.getProduct = async (req, res) => {
       return res.status(200).send({ status: true, message: "Success", data: productData });
     }
 
-    //===================== Create a Object of Product =====================//
+
     let obj = { isDeleted: false }
 
-    //===================== Check Present data & Validate of Size =====================//
+  
     if (size || size == '') {
       if (!isValid(size)) return res.status(400).send({ status: false, message: "Please enter Size!" });
       size = size.split(',').map((item) => item.trim())  // this will convert string to array like string = "S,XS" to array = ["S","XS"]
@@ -154,33 +154,31 @@ exports.getProduct = async (req, res) => {
       obj.availableSizes = { $all: size }  // this will check all the size is present in DB or not
     }
 
-    //===================== Check Present data & Validate of Name =====================//
+    
     if (name || name == '') {  // name of product
       if (!isValid(name)) { return res.status(400).send({ status: false, message: "Please enter name!" }) }
       if (!isValidName(name)) { return res.status(400).send({ status: false, message: "Please mention valid name!" }) }
       obj.title = { $regex: name }  // $regex is a mongoDB operator which will check the name is present in DB or not
     }
-
-    //===================== Check Present data & Validate of priceGreaterThan =====================//
+    
     if (priceGreaterThan || priceGreaterThan == '') {
       if (!isValid(priceGreaterThan)) return res.status(400).send({ status: false, message: "Please enter Price Greater Than!" });
       if (!isValidPrice(priceGreaterThan)) return res.status(400).send({ status: false, message: "priceGreaterThan must be number!" });
       obj.price = { $gt: priceGreaterThan }
-    }
-
-    //===================== Check Present data & Validate of priceLessThan =====================//
+      
+      
     if (priceLessThan || priceLessThan == '') {
       if (!isValid(priceLessThan)) return res.status(400).send({ status: false, message: "Please enter Price Lesser Than!" });
       if (!isValidPrice(priceLessThan)) return res.status(400).send({ status: false, message: "priceLessThan must be number!" });
       obj.price = { $lt: priceLessThan }
     }
 
-    //===================== Check the Both data(i.e priceGreaterThan & priceLessThan) is present or not =====================//
+      
     if (priceGreaterThan && priceLessThan) {
       obj.price = { $gt: priceGreaterThan, $lt: priceLessThan }
     }  
 
-    //===================== Validate the Price Sort =====================//
+      
     if (priceSort || priceSort == '') {
       if (!(priceSort == -1 || priceSort == 1)) return res.status(400).send({ status: false, message: "Please Enter '1' for Sort in Ascending Order or '-1' for Sort in Descending Order!" });
     }
