@@ -206,7 +206,10 @@ exports.updateProducts = async (req, res) => {
 
     let product = await productModel.findById(productId)
 
-    if(!product) return res.status(404).send({ status: false, messgage: 'product not found' })
+    if (product.isDeleted == true) {
+      return res.status(404).send({ status: false, message: "This product has been deleted" })
+  }
+
 
     const body = req.body
     const files = req.files
@@ -285,7 +288,7 @@ exports.updateProducts = async (req, res) => {
     
     //==============================Update-Product=========================//
 
-    let newProduct = await productModel.findByIdAndUpdate({_id:productId, isDeleted:false}, data, { new: true })
+    let newProduct = await productModel.findOneAndUpdate({_id:productId}, data, { new: true })
     if(!newProduct) {
       return res.status(404).send({ status: false, message: "this product can't be update because it is not exist" });
     }
