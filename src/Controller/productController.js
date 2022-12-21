@@ -9,7 +9,7 @@ exports.createProducts = async (req, res) => {
     let data = req.body
     let files = req.files
 
-    let { title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes } = data
+    let { title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes ,installments } = data
 
     //===================== Checking User Body Data =====================//
     if (!isValidRequestBody(data)) return res.status(400).send({ status: false, message: "title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes" });
@@ -78,6 +78,11 @@ exports.createProducts = async (req, res) => {
     else {
       return res.status(400).send({ msg: "Please put image to create registration!" })
     }
+
+    if (installments) {
+      if (!isValidNum(installments)) return res.status(400).send({ status: false, message: "Provied the valid installments and it will be in number format only" })
+    }
+
 
 
     //-------------------------------create the product info------------------
@@ -191,6 +196,102 @@ exports.getProduct = async (req, res) => {
   } catch (error) {
 
     return res.status(500).send({ status: false, message: error.message })
+  }
+}
+
+
+exports.updateProducts = async (req, res) => {
+  try {
+    let productId = req.params.productId
+
+    if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Invalid productId" })
+
+    let product = await userModel.findById(productId)
+
+    if(!product) return res.status(404).send({ status: false, messgage: 'product not found' })
+
+    const body = req.body
+    const files = req.files
+
+    let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = body
+
+    data = {}
+    //========================= if no keys are provided to update data========================//
+    if (!(title || description || price || currencyId || currencyFormat || isFreeShipping || style || availableSizes || installments || files)) {
+      return res.status(400).send({ status: false, message: `please enter valid key in body` })
+    }
+
+    if (title) {
+      if (!isValid(title)) return res.status(400).send({ status: false, message: "please enter the title" })
+      let uniqueTitle = await productModel.findOne({ title: title })
+      if (uniqueTitle) return res.status(400).send({ status: false, message: "this title is already present...to update please give a new title" })
+      data.title = title
+    }
+
+    if (description) {
+      if (!isValidName(description)) return res.status(400).send({ status: false, message: "Please enter valid description" })
+      data.description = description
+    }
+    if (price) {
+      if (!isValidPrice(price)) return res.status(400).send({ status: false, message: "'price should be in valid Format with Numbers || Decimals" })
+      data.price = price
+    }
+
+    if (currencyId) {
+      if (currencyId != "INR") return res.status(400).send({ status: false, message: "currencyId Should be in this form 'INR' only" })
+      data.currencyId = currencyId
+    }
+
+    if (currencyFormat) {
+      if (currencyFormat != "₹") { return res.status(400).send({ status: false, message: "currencyFormat Should be in this form '₹' only" }) }
+      data.currencyFormat = currencyFormat
+    }
+
+    if (isFreeShipping) {
+      if (isFreeShipping != "true" && isFreeShipping != "false")
+        return res.status(400).send({ status: false, message: "isFreeShipping Should be in boolean with small letters" })
+      data.isFreeShipping = isFreeShipping
+    }
+
+    if (files && files.length != 0) {
+      let ImageLink = await uploadFile(files[0])
+      if (!urlreg.test(ImageLink)) return res.status(406).send({
+        status: false, message: "image file should be in image format",
+      })
+      data.productImage = ImageLink
+    }
+
+    if (style) {
+      if (!isValidName(style)) return res.status(400).send({ status: false, message: "please enter the style in string" })
+      data.style = style
+    }
+
+    if (availableSizes) {
+      availableSizes = availableSizes.toUpperCase()
+      let size = availableSizes.split(',').map(x => x.trim())
+      //=========================================================//
+      for (let i = 0; i < size.length; i++) {
+        if (!validSizes(size[i]))
+          return res.status(400).send({ status: false, message: "availableSizes should have only these Sizes ['S' || 'XS'  || 'M' || 'X' || 'L' || 'XXL' || 'XL']"})
+
+      }
+      data['$addToSet'] = {}
+      data['$addToSet']['availableSizes'] = size
+
+    }
+
+    if (installments) {
+      if (!isValidNum(installments)) return res.status(400).send({ status: false, message: "installments should have only Number" })
+      data.installments = installments
+    }
+
+    //=============================================================//
+
+    let newProduct = await productModel.findByIdAndUpdate(productId, data, { new: true })
+     return res.status(200).send({ status: true, message: "product is successfully updated", data: newProduct })
+
+  }catch(error) {
+    return res.status(500).send({status: false, message: error.message})
   }
 }
 
