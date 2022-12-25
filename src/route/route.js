@@ -7,7 +7,7 @@ const { createUser, userLogin, getUserProfile,updateUser} = require('../Controll
 
 const {createProducts, getProductById , getProduct,updateProducts, deleteProduct} = require('../Controller/productController')
 
-const {createCart,getCart,deleteCart } = require('../Controller/cartController')
+const {createCart,getCart,deleteCart, updateCart} = require('../Controller/cartController')
 
 
 //===================== User API =====================//
@@ -41,7 +41,7 @@ router.get("/users/:userId/cart", authentication, authorization, getCart)
 
 router.delete("/users/:userId/cart", authentication, authorization, deleteCart)
 
-// router.put("/users/:userId/cart", authentication, authorization, updateCart)
+router.put("/users/:userId/cart", authentication, authorization, updateCart)
 
 
 
