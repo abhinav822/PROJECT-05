@@ -13,6 +13,7 @@ const cartSchema = new mongoose.Schema({
     items: [{
         productId: { type: ObjectId, ref: 'Product', required: true },
         quantity: { type: Number, required: true, min: 1 },
+        _id: false  // this will not create a new id for the items array means it will not create a new id for each item
     }],
 
     totalPrice: {

@@ -1,6 +1,6 @@
 const productModel = require('../model/productModel')
 const uploadFile = require("../aws/config")
-const { isValidPrice, isValidNum,isValidateSize, isValidImage, isValid, isValidName, isValidObjectId, isValidRequestBody } = require('../validations/validator')
+const { isValidPrice, isValidNum, isValidateSize, isValidImage, isValid, isValidName, isValidObjectId, isValidRequestBody } = require('../validations/validator')
 
 
 
@@ -9,7 +9,7 @@ exports.createProducts = async (req, res) => {
     let data = req.body
     let files = req.files
 
-    let { title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes ,installments } = data
+    let { title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes, installments } = data
 
     //===================== Checking User Body Data =====================//
     if (!isValidRequestBody(data)) return res.status(400).send({ status: false, message: "title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes" });
@@ -119,79 +119,101 @@ exports.getProductById = async function (req, res) {
 }
 
 
+exports.getProductById = async function (req, res) {
+  try {
+    let productId = req.params.productId
+
+    if (!isValidObjectId(productId))
+      return res.status(400).send({ status: false, message: "Please provide valid productId." })
+
+    let product = await productModel.findOne({ _id: productId, isDeleted: false })
+
+    if (!product) return res.status(404).send({ status: false, message: "Product Not found." })
+
+    return res.status(200).send({ status: true, message: "Success", data: product })
+  } catch (error) {
+    return res.status(500).send({ status: false, message: error.message })
+  }
+
+}
+
 
 exports.getProduct = async (req, res) => {
 
   try {
 
-    let data = req.query
+      let data = req.query
 
-   
-    let { size, name, priceGreaterThan, priceLessThan, priceSort, ...rest } = data
+      //===================== Destructuring User Body Data =====================//
+      let { size, name, priceGreaterThan, priceLessThan, priceSort, ...rest } = data
 
+      //===================== Checking Mandotory Field =====================//
+      if (validator.checkInputsPresent(rest)) { return res.status(400).send({ status: false, message: "You can input only size, name, priceGreaterThan, priceLessThan, priceSort." }) }
 
-    if (isValidRequestBody(rest)) { return res.status(400).send({ status: false, message: "You can input only size, name, priceGreaterThan, priceLessThan, priceSort." }) }
+      if (!validator.checkInputsPresent(data)) {
 
-    if (!isValidRequestBody(data)) {
+          let productData = await productModel.find({ isDeleted: false })
 
-      let productData = await productModel.find({ isDeleted: false })
+          if (productData.length == 0) return res.status(404).send({ status: false, message: "Products not found" })
 
-      if (productData.length == 0) return res.status(404).send({ status: false, message: "Products not found" })
-
-      return res.status(200).send({ status: true, message: "Success", data: productData });
-    }
-
-
-    let obj = { isDeleted: false }
-
-  
-    if (size || size == '') {
-      if (!isValid(size)) return res.status(400).send({ status: false, message: "Please enter Size!" });
-      size = size.split(',').map((item) => item.trim())  // this will convert string to array like string = "S,XS" to array = ["S","XS"]
-      for (let i = 0; i < size.length; i++) {
-        if (!isValidateSize(size[i])) return res.status(400).send({ status: false, message: "Please mention valid Size!" });
+          return res.status(200).send({ status: true, message: "Success", data: productData });
       }
-      obj.availableSizes = { $all: size }  // this will check all the size is present in DB or not
-    }
 
-    
-    if (name || name == '') {  // name of product
-      if (!isValid(name)) { return res.status(400).send({ status: false, message: "Please enter name!" }) }
-      if (!isValidName(name)) { return res.status(400).send({ status: false, message: "Please mention valid name!" }) }
-      obj.title = { $regex: name }  // $regex is a mongoDB operator which will check the name is present in DB or not
-    }
-    
-    if (priceGreaterThan || priceGreaterThan == '') {
-      if (!isValid(priceGreaterThan)) return res.status(400).send({ status: false, message: "Please enter Price Greater Than!" });
-      if (!isValidPrice(priceGreaterThan)) return res.status(400).send({ status: false, message: "priceGreaterThan must be number!" });
-      obj.price = { $gt: priceGreaterThan }
-      
-      
-    if (priceLessThan || priceLessThan == '') {
-      if (!isValid(priceLessThan)) return res.status(400).send({ status: false, message: "Please enter Price Lesser Than!" });
-      if (!isValidPrice(priceLessThan)) return res.status(400).send({ status: false, message: "priceLessThan must be number!" });
-      obj.price = { $lt: priceLessThan }
-    }
+      //===================== Create a Object of Product =====================//
+      let obj = { isDeleted: false }
 
-      
-    if (priceGreaterThan && priceLessThan) {
-      obj.price = { $gt: priceGreaterThan, $lt: priceLessThan }
-    }  
+      //===================== Check Present data & Validate of Size =====================//
+      if (size || size == '') {
+          if (!validator.isValidBody(size)) return res.status(400).send({ status: false, message: "Please enter Size!" });
+          size = size.split(',').map((item) => item.trim())
+          for (let i = 0; i < size.length; i++) {
+              if (!validator.isValidateSize(size[i])) return res.status(400).send({ status: false, message: "Please mention valid Size!" });
+          }
+          obj.availableSizes = { $all: size }
+      }
 
-      
-    if (priceSort || priceSort == '') {
-      if (!(priceSort == -1 || priceSort == 1)) return res.status(400).send({ status: false, message: "Please Enter '1' for Sort in Ascending Order or '-1' for Sort in Descending Order!" });
-    }
+      //===================== Check Present data & Validate of Name =====================//
+      if (name || name == '') {
+          if (!validator.isValidBody(name)) { return res.status(400).send({ status: false, message: "Please enter name!" }) }
+          if (!validator.isValidProdName(name)) { return res.status(400).send({ status: false, message: "Please mention valid name!" }) }
+          obj.title = { $regex: name }
+      }
 
-    let getProduct = await productModel.find(obj).sort({ price: priceSort })
+      //===================== Check Present data & Validate of priceGreaterThan =====================//
+      if (priceGreaterThan || priceGreaterThan == '') {
+          if (!validator.isValidBody(priceGreaterThan)) return res.status(400).send({ status: false, message: "Please enter Price Greater Than!" });
+          if (!validator.isValidPrice(priceGreaterThan)) return res.status(400).send({ status: false, message: "priceGreaterThan must be number!" });
+          obj.price = { $gt: priceGreaterThan }
+      }
 
-    if (getProduct.length == 0) return res.status(404).send({ status: false, message: "Product Not Found." })
+      //===================== Check Present data & Validate of priceLessThan =====================//
+      if (priceLessThan || priceLessThan == '') {
+          if (!validator.isValidBody(priceLessThan)) return res.status(400).send({ status: false, message: "Please enter Price Lesser Than!" });
+          if (!validator.isValidPrice(priceLessThan)) return res.status(400).send({ status: false, message: "priceLessThan must be number!" });
+          obj.price = { $lt: priceLessThan }
+      }
 
-    return res.status(200).send({ status: true, message: "Success", data: getProduct })
+      //===================== Check the Both data(i.e priceGreaterThan & priceLessThan) is present or not =====================//
+      if (priceGreaterThan && priceLessThan) {
+          obj.price = { $gt: priceGreaterThan, $lt: priceLessThan }
+      }
+
+      //===================== Validate the Price Sort =====================//
+      if (priceSort || priceSort == '') {
+          if (!(priceSort == -1 || priceSort == 1)) return res.status(400).send({ status: false, message: "Please Enter '1' for Sort in Ascending Order or '-1' for Sort in Descending Order!" });
+      }
+
+      //x===================== Fetching All Data from Product DB =====================x//
+      let getProduct = await productModel.find(obj).sort({ price: priceSort })
+
+      //===================== Checking Data is Present or Not in DB =====================//
+      if (getProduct.length == 0) return res.status(404).send({ status: false, message: "Product Not Found." })
+
+      return res.status(200).send({ status: true, message: "Success", data: getProduct })
 
   } catch (error) {
 
-    return res.status(500).send({ status: false, message: error.message })
+      return res.status(500).send({ status: false, message: error.message })
   }
 }
 
@@ -318,5 +340,3 @@ exports.deleteProduct = async (req, res) => {
       return res.status(500).send({ status: false, message: error.message })
   }
 }
-
-
