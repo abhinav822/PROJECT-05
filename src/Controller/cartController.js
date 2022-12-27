@@ -19,7 +19,7 @@ exports.createCart = async (req, res) => {
         if (!isValidObjectId(pId)) return res.status(400).send({ status: false, message: `This ProductId: ${pId} is not valid!` })
 
         let checkProduct = await productModel.findOne({ _id: pId, isDeleted: false })
-        if (!checkProduct) { return res.status(404).send({ status: false, message: `This ProductId: ${pId} does not exist or deleted!` }) }
+        if (!checkProduct) { return res.status(404).send({ status: false, message: `This ProductId: ${pId} is not exist!` }) }
 
         if (!cId) {
             let cartExistforUser = await cartModel.findOne({ userId: uId })
@@ -38,7 +38,21 @@ exports.createCart = async (req, res) => {
             return res.status(404).send({ status: false, message: `No user found with this ${uId}` })
         }
 
+        // if (!isValid(cId)) return res.status(400).send({ status: false, message: "Enter ProductId." })
+        // if (!isValidObjectId(cId)) return res.status(400).send({ status: false, message: `This ProductId: ${pId} is not valid!` })
+
+        if (cId) {
+            if (!isValidObjectId(cId)) {
+                return res.status(400).send({ status: false, message: "invalid cartId format" })
+            }
+            let cartExist = await cartModel.findById(cId)
+            if (!cartExist) {
+                return res.status(404).send({ status: false, message: "cart does not exist" })
+            }
+        }
+        
         let cartExist = await cartModel.findOne({ _id: cId });  //checking if the cart is already present in the database
+
 
         if (cartExist) {
             if (cartExist.userId != uId) {
@@ -46,32 +60,31 @@ exports.createCart = async (req, res) => {
             }
             let updateData = {}  //creating an empty object
 
-            for (let i = 0; i < cartExist.items.length; i++) {
-                if (cartExist.items[i].productId == pId) {
+            for (let i = 0; i < cartExist.items.length; i++) {  //looping through the items array
+                if (cartExist.items[i].productId == pId) {  //checking if the product id is already present in the cart
 
-                    cartExist.items[i].quantity = (cartExist.items[i])['quantity'] + parseInt(data.quantity)
+                    cartExist.items[i].quantity = (cartExist.items[i])['quantity'] + parseInt(data.quantity)  // quantity we have written in square brackets because we have to access the quantity property of the object 
 
                     updateData['items'] = cartExist.items  //updating the items array 
-                    const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 })
-
+                    const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 }) // getting the price of the product id: pId means we are getting the price of the product which is present in the cart
                     nPrice = productPrice.price;  //getting the price of the product
 
-                    updateData['totalPrice'] = (cartExist.totalPrice) + parseInt(data.quantity * nPrice)
-                    updateData['totalItems'] = cartExist.items.length;
+                    updateData['totalPrice'] = (cartExist.totalPrice) + parseInt(data.quantity * nPrice)  // updating the total price
+                    updateData['totalItems'] = cartExist.items.length;  //updating the total items but why cartExist.items.length because we are not adding any new item we are just updating the quantity of the item which is already present in the cart
 
-                    const updatedCart = await cartModel.findOneAndUpdate({ _id: cId }, updateData, { new: true })
-                    return res.status(200).send({ status: true, message: "Updated Cart", data: updatedCart })
+                    const updatedCart = await cartModel.findOneAndUpdate({ _id: cId }, updateData, { new: true })  //updating the cart
+                    return res.status(200).send({ status: true, message: "Updated Cart", data: updatedCart })  //sending the updated cart
                 }
                 //new product
-                if (cartExist.items[i].productId !== pId && i == cartExist.items.length - 1) {
-                    const obj = { productId: pId, quantity: 1 }
-                    let arr = cartExist.items
-                    arr.push(obj)
-                    updateData['items'] = arr
+                if (cartExist.items[i].productId !== pId && i == cartExist.items.length - 1) {  //checking if the product id is not present in the cart and if the loop is at the last index of the array
+                    const obj = { productId: pId, quantity: 1 }  //creating an object with the product id and quantity
+                    let arr = cartExist.items  //  we are getting the items array from the cart and storing it in the arr variable
+                    arr.push(obj)  //pushing the object into the array
+                    updateData['items'] = arr  //updating the items array
 
-                    const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 })
-                    nPrice = productPrice.price
-                    updateData['totalPrice'] = cartExist.totalPrice + (nPrice * 1)
+                    const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 })  //THIS line means that the product should be present in the database and purpose of this line is to get the price of the product
+                    nPrice = productPrice.price  //getting the price of the product
+                    updateData['totalPrice'] = cartExist.totalPrice + (nPrice * 1)  //updating the total price
                     updateData['totalItems'] = cartExist.items.length;
 
                     const updatedCart = await cartModel.findOneAndUpdate({ _id: cId }, updateData, { new: true })
@@ -81,21 +94,21 @@ exports.createCart = async (req, res) => {
 
         }
         else {
-            let newData = {}
-            let arr = []
-            newData.userId = uId;
+            let newData = {}  //creating a new object
+            let arr = []  //creating a new array
+            newData.userId = uId;  //adding the user id to the object
 
-            const object = { productId: pId, quantity: 1 }
-            arr.push(object)
-            newData.items = arr;
+            const object = { productId: pId, quantity: 1 }  //creating an object with the product id and quantity
+            arr.push(object)  //pushing the object into the array
+            newData.items = arr;  //adding the array to the object
 
-            const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 })
-            if (!productPrice) { return res.status(404).send({ status: false, mesaage: `Product not found or Deleted with this ${pId}` }) }
-            nPrice = productPrice.price;
-            newData.totalPrice = nPrice;
+            const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 })  //this is to get the price of the product
+            nPrice = productPrice.price;  //getting the price of the product
+            newData.totalPrice = nPrice;  //adding the price to the object
 
-            newData.totalItems = arr.length;
-            const newCart = await cartModel.create(newData)
+            newData.totalItems = arr.length;  //adding the total items to the object
+
+            const newCart = await cartModel.create(newData)  //creating a new cart
 
             return res.status(201).send({ status: true, message: "Cart details", data: newCart })
 

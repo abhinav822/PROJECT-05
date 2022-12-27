@@ -9,7 +9,7 @@ const {createProducts, getProductById , getProduct,updateProducts, deleteProduct
 
 const {createCart,getCart,deleteCart, updateCart} = require('../Controller/cartController')
 
-const { updateOrder } = require('../Controller/orderController')
+const { updateOrder , createOrder} = require('../Controller/orderController')
 
 
 
@@ -48,7 +48,7 @@ router.put("/users/:userId/cart", authentication, authorization, updateCart)
 
 //<<<===================== Order's APIs =====================>>>//
 
-// router.post("/users/:userId/orders", authentication, authorization, createOrder)
+router.post("/users/:userId/orders", authentication, authorization, createOrder)
 
 router.put("/users/:userId/orders", authentication, authorization, updateOrder)
 
