@@ -77,7 +77,7 @@ exports.createUser = async (req, res) => {
 
 
         //===================== Fetching data of Email from DB and Checking Duplicate Email or Phone is Present or Not =====================//
-        const isDuplicateEmail = await userModel.findOne({ $or: [{ email: email }, { phone: phone }] })
+        const isDuplicateEmail = await userModel.findOne({ $or: [{ email: email }, { phone: phone }] })  //Checking Duplicate Email or Phone is Present or Not
         if (isDuplicateEmail) {
             if (isDuplicateEmail.email == email) { return res.status(400).send({ status: false, message: `This EmailId: ${email} is already exist!` }) }
             if (isDuplicateEmail.phone == phone) { return res.status(400).send({ status: false, message: `This Phone No.: ${phone} is already exist!` }) }
@@ -89,8 +89,7 @@ exports.createUser = async (req, res) => {
             
 
             if (files.length > 1) return res.status(400).send({ status: false, message: "You can't enter more than one file for Create!" })
-            if (!isValidImage(files[0]['originalname'])) { return res.status(400).send({ status: false, message: "You have to put only Image." }) }
-
+            if (!isValidImage(files[0]['originalname'])) { return res.status(400).send({ status: false, message: "You have to put only Image." }) }  // original name is the name of the file on the user's computer and if we want to get the name of the file on the server we have to use the name property 
             data.profileImage = await uploadFile(files[0])
         }
         else {
@@ -131,8 +130,8 @@ exports.userLogin = async function (req, res) {
 
 
     // creating JWT token using userId
-    let userId = user._id
-    let token = jwt.sign({ userId: userId }, "secretKey", { expiresIn: '10h' }, { iat: Math.floor(Date.now() / 1000) })
+    let userId = user._id  
+    let token = jwt.sign({ userId: userId }, "secretKey", { expiresIn: '10h' }, { iat: Math.floor(Date.now() / 1000) })  //jwt.sign is used to create token
     return res.status(200).send({ status: true, message: "User login successfull", data: { userId, token } })
 
 }

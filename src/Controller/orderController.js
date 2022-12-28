@@ -131,10 +131,10 @@ exports.createOrder = async (req, res) => {
         if (cancellable) {
             if (!isValid(cancellable))
                 return res.status(400).send({ status: false, message: "cancellable should not contain blank spaces" });
-            if (typeof cancellable == 'string') {
+            if (typeof cancellable == 'string') {  
                 cancellable = cancellable.toLowerCase().trim();
                 if (cancellable == 'true' || cancellable == 'false') {
-                    cancellable = JSON.parse(cancellable)
+                    cancellable = JSON.parse(cancellable) // we are parsing it because we want to store it as boolean in db and if we don't parse it then it will store as string 
                 } else {
                     return res.status(400).send({ status: false, message: "Please enter 'true' or 'false'" });
                 }

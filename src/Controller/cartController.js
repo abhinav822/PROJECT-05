@@ -38,9 +38,6 @@ exports.createCart = async (req, res) => {
             return res.status(404).send({ status: false, message: `No user found with this ${uId}` })
         }
 
-        // if (!isValid(cId)) return res.status(400).send({ status: false, message: "Enter ProductId." })
-        // if (!isValidObjectId(cId)) return res.status(400).send({ status: false, message: `This ProductId: ${pId} is not valid!` })
-
         if (cId) {
             if (!isValidObjectId(cId)) {
                 return res.status(400).send({ status: false, message: "invalid cartId format" })
@@ -60,31 +57,31 @@ exports.createCart = async (req, res) => {
             }
             let updateData = {}  //creating an empty object
 
-            for (let i = 0; i < cartExist.items.length; i++) {  //looping through the items array
-                if (cartExist.items[i].productId == pId) {  //checking if the product id is already present in the cart
+            for (let i = 0; i < cartExist.items.length; i++) {  
+                if (cartExist.items[i].productId == pId) {  
 
-                    cartExist.items[i].quantity = (cartExist.items[i])['quantity'] + parseInt(data.quantity)  // quantity we have written in square brackets because we have to access the quantity property of the object 
+                    cartExist.items[i].quantity = (cartExist.items[i])['quantity'] + parseInt(data.quantity)  
 
-                    updateData['items'] = cartExist.items  //updating the items array 
-                    const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 }) // getting the price of the product id: pId means we are getting the price of the product which is present in the cart
-                    nPrice = productPrice.price;  //getting the price of the product
+                    updateData['items'] = cartExist.items   
+                    const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 }) 
+                    nPrice = productPrice.price;  
 
-                    updateData['totalPrice'] = (cartExist.totalPrice) + parseInt(data.quantity * nPrice)  // updating the total price
-                    updateData['totalItems'] = cartExist.items.length;  //updating the total items but why cartExist.items.length because we are not adding any new item we are just updating the quantity of the item which is already present in the cart
+                    updateData['totalPrice'] = (cartExist.totalPrice) + parseInt(data.quantity * nPrice)  
+                    updateData['totalItems'] = cartExist.items.length;  
 
-                    const updatedCart = await cartModel.findOneAndUpdate({ _id: cId }, updateData, { new: true })  //updating the cart
-                    return res.status(200).send({ status: true, message: "Updated Cart", data: updatedCart })  //sending the updated cart
+                    const updatedCart = await cartModel.findOneAndUpdate({ _id: cId }, updateData, { new: true })  
+                    return res.status(200).send({ status: true, message: "Updated Cart", data: updatedCart })  
                 }
                 //new product
-                if (cartExist.items[i].productId !== pId && i == cartExist.items.length - 1) {  //checking if the product id is not present in the cart and if the loop is at the last index of the array
-                    const obj = { productId: pId, quantity: 1 }  //creating an object with the product id and quantity
-                    let arr = cartExist.items  //  we are getting the items array from the cart and storing it in the arr variable
-                    arr.push(obj)  //pushing the object into the array
-                    updateData['items'] = arr  //updating the items array
+                if (cartExist.items[i].productId !== pId && i == cartExist.items.length - 1) {  
+                    const obj = { productId: pId, quantity: 1 }  
+                    let arr = cartExist.items  
+                    arr.push(obj)  
+                    updateData['items'] = arr  
 
-                    const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 })  //THIS line means that the product should be present in the database and purpose of this line is to get the price of the product
-                    nPrice = productPrice.price  //getting the price of the product
-                    updateData['totalPrice'] = cartExist.totalPrice + (nPrice * 1)  //updating the total price
+                    const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 })  
+                    nPrice = productPrice.price  
+                    updateData['totalPrice'] = cartExist.totalPrice + (nPrice * 1) 
                     updateData['totalItems'] = cartExist.items.length;
 
                     const updatedCart = await cartModel.findOneAndUpdate({ _id: cId }, updateData, { new: true })
@@ -94,21 +91,21 @@ exports.createCart = async (req, res) => {
 
         }
         else {
-            let newData = {}  //creating a new object
-            let arr = []  //creating a new array
-            newData.userId = uId;  //adding the user id to the object
+            let newData = {}  
+            let arr = []  
+            newData.userId = uId; 
 
-            const object = { productId: pId, quantity: 1 }  //creating an object with the product id and quantity
-            arr.push(object)  //pushing the object into the array
-            newData.items = arr;  //adding the array to the object
+            const object = { productId: pId, quantity: 1 }  
+            arr.push(object)  
+            newData.items = arr;  
 
-            const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 })  //this is to get the price of the product
-            nPrice = productPrice.price;  //getting the price of the product
-            newData.totalPrice = nPrice;  //adding the price to the object
+            const productPrice = await productModel.findOne({ _id: pId, isDeleted: false }).select({ price: 1, _id: 0 })  
+            nPrice = productPrice.price;  
+            newData.totalPrice = nPrice;  
 
-            newData.totalItems = arr.length;  //adding the total items to the object
+            newData.totalItems = arr.length;  
 
-            const newCart = await cartModel.create(newData)  //creating a new cart
+            const newCart = await cartModel.create(newData)  
 
             return res.status(201).send({ status: true, message: "Cart details", data: newCart })
 
@@ -163,7 +160,7 @@ exports.deleteCart = async function (req, res) {
         }
         let cart = { totalItems: 0, totalPrice: 0, items: [] }
         const deleteCart = await cartModel.findOneAndUpdate({ userId: userId }, cart, { new: true })
-        return res.status(204).send()  // 204 will not send any data in response  
+        return res.status(204).send()  
 
     }
     catch (error) {
@@ -192,13 +189,13 @@ exports.updateCart = async (req, res) => {
         if (!isValid(removeProduct)) return res.status(400).send({ status: false, message: "Please provide removeProduct" })
         if (!/^[0-1]$/.test(removeProduct)) return res.status(400).send({ status: false, message: "removeProduct can ONLY be 0 or 1" });
 
-        let userDb = await userModel.findById(userId)  //checking if the user is present in the database
+        let userDb = await userModel.findById(userId)  
         if (!userDb) return res.status(404).send({ status: false, messgage: 'user not found' })
 
         let cartDbForUser = await cartModel.findOne({ _id: cartId, userId: userId })
         if (!cartDbForUser) return res.status(404).send({ status: false, messgage: `Cart with ID: ${cartId} of User: ${userId} not found in Database` })
 
-        if (cartDbForUser.items.length === 0) {  //checking if the items array is empty
+        if (cartDbForUser.items.length === 0) { 
             return res.status(404).send({ status: false, message: ` NO products in cart with ID: <${cartId}>` });
         }
 
@@ -213,14 +210,14 @@ exports.updateCart = async (req, res) => {
         if (removeProduct == 0) {
             const removeProduct0 = await cartModel.findOneAndUpdate(
                 {
-                    _id: cartId,
-                    "items.productId": productId,  //this will find the product in the cart
+                    _id: cartId,  
+                    "items.productId": productId,  
                 },
                 {
-                    $pull: { items: { productId: productId } },  //this will remove the product from the cart
+                    $pull: { items: { productId: productId } },  
                     $inc: {
-                        totalItems: -1,  //this will decrease the totalItems by 1
-                        totalPrice: -productDb.price * numProductInCart[0].quantity,  //this will decrease the totalPrice by the price of the product use of - sign is to decrease the value of the totalPrice
+                        totalItems: -1,  
+                        totalPrice: -productDb.price * numProductInCart[0].quantity,  
                     },
                 },
                 { new: true }
@@ -231,17 +228,17 @@ exports.updateCart = async (req, res) => {
 
         else if (removeProduct == 1) {
 
-            if (numProductInCart[0].quantity === 1) {  //if the quantity of the product in the cart is 1 then it will remove the product from the cart
+            if (numProductInCart[0].quantity === 1) {  
                 const removeProCart1 = await cartModel.findOneAndUpdate(
                     {
-                        _id: cartId,
-                        "items.productId": productId
+                        _id: cartId,  
+                        "items.productId": productId 
                     },
                     {
-                        $pull: { items: { productId: productId } },  //this will remove the product from the cart with the productId
+                        $pull: { items: { productId: productId } }, 
                         $inc: {
                             totalItems: -1,  
-                            totalPrice: -productDb.price * numProductInCart[0].quantity  // -productDb.price * numProductInCart[0] this means that the price of the product will be multiplied by the quantity of the product in the cart and then it will be subtracted from the totalPrice
+                            totalPrice: -productDb.price * numProductInCart[0].quantity  
                         },
                     },
                     { new: true }
@@ -253,13 +250,13 @@ exports.updateCart = async (req, res) => {
 
         const reduceProductIfMore1 = await cartModel.findOneAndUpdate(
             {
-                _id: cartId,  //this will find the cart with the cartId
-                "items.productId": productId,  //this will find the product in the cart
+                _id: cartId,  
+                "items.productId": productId,  
             },
             {
                 $inc: {    // why not $de
-                    "items.$.quantity": -1,  //this will decrease the quantity of the product by 1
-                    totalPrice: -productDb.price,  //this will decrease the totalPrice by the price of the product
+                    "items.$.quantity": -1,  
+                    totalPrice: -productDb.price,  
                 },
             },
             { new: true }

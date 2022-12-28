@@ -51,8 +51,8 @@ exports.createProducts = async (req, res) => {
     }
 
     if (availableSizes) {
-      let size = availableSizes.toUpperCase().split(",")
-      data.availableSizes = size;
+      let size = availableSizes.toUpperCase().split(",")  // purpose of this is to con
+      data.availableSizes = size;  
 
 
       for (let i = 0; i < size.length; i++) {
@@ -123,7 +123,7 @@ exports.getProduct = async (req, res) => {
 
   try {
 
-      let data = req.query
+      let data = req.query  // why we use query but we are giving data in body 
 
       //===================== Destructuring User Body Data =====================//
       let { size, name, priceGreaterThan, priceLessThan, priceSort, ...rest } = data
@@ -141,23 +141,23 @@ exports.getProduct = async (req, res) => {
       }
 
       //===================== Create a Object of Product =====================//
-      let obj = { isDeleted: false }
+      let obj = { isDeleted: false }  //we have craeted this object to store the data 
 
       //===================== Check Present data & Validate of Size =====================//
       if (size || size == '') {
           if (!isValid(size)) return res.status(400).send({ status: false, message: "Please enter Size!" });
-          size = size.split(',').map((item) => item.trim())
+          size = size.split(',').map((item) => item.trim())  // item.trim() is used to remove space from the string
           for (let i = 0; i < size.length; i++) {
               if (!isValidateSize(size[i])) return res.status(400).send({ status: false, message: "Please mention valid Size!" });
           }
-          obj.availableSizes = { $all: size }
+          obj.availableSizes = { $all: size }   // obj.availableSizes = {$all: size} means that the array of availableSizes must contain all the values in the size array.
       }
 
       //===================== Check Present data & Validate of Name =====================//
       if (name || name == '') {
           if (!isValid(name)) { return res.status(400).send({ status: false, message: "Please enter name!" }) }
           if (!isValidName(name)) { return res.status(400).send({ status: false, message: "Please mention valid name!" }) }
-          obj.title = { $regex: name }
+          obj.title = { $regex: name }  // $regex is used to search the data in the database
       }
 
       //===================== Check Present data & Validate of priceGreaterThan =====================//
